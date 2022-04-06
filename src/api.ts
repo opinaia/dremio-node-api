@@ -195,21 +195,26 @@ export async function createAPI(config: ClusterConfiguration, login: schema.Logi
         })).id
       },
 
-      async runQueryAndGetResults(sql: string, pollTime = 10, offset?: number, limit?: number, _timeout?: number) {
+      async runQueryAndGetResults(sql: string, pollTime = 10, offset = 0, limit = 500, _timeout?: number) {
         const jobId = await api.sql.runQuery(sql)
         const start = new Date().getTime()
         const timeout = _timeout === undefined ? undefined : _timeout * 1000
         while (true) {
           await poll(pollTime)
           const status = await api.job.getStatus(jobId)
+          if (status.jobState === 'FAILED') {
+            throw new Error(status.errorMessage)
+          }
 
-          if (status.jobState !== 'RUNNING') {
-            if (status.jobState === 'COMPLETED') {
-              return await api.job.getResults(jobId, offset, limit)
-            } else {
-              throw status.errorMessage
-            }
-          } else if (timeout !== undefined) {
+          if (status.jobState === 'CANCELED') {
+            throw new Error(`Job ${jobId} has been canceled`)
+          }
+
+          if (status.jobState === 'COMPLETED') {
+            return await api.job.getResults(jobId, offset, limit)
+          }
+
+          if (timeout !== undefined) {
             if (new Date().getTime() > (start + timeout)) {
               throw `Query timed out after ${_timeout} seconds: ${sql}`
             }
