@@ -202,9 +202,6 @@ export async function createAPI(config: ClusterConfiguration, login: schema.Logi
         while (true) {
           await poll(pollTime)
           const status = await api.job.getStatus(jobId)
-          if (status.jobState === 'FAILED') {
-            throw new Error(status.errorMessage)
-          }
 
           if (status.jobState === 'CANCELED') {
             throw new Error(`Job ${jobId} has been canceled`)

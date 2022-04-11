@@ -161,9 +161,6 @@ function createAPI(config, login) {
                         while (true) {
                             yield poll(pollTime);
                             const status = yield api.job.getStatus(jobId);
-                            if (status.jobState === 'FAILED') {
-                                throw new Error(status.errorMessage);
-                            }
                             if (status.jobState === 'CANCELED') {
                                 throw new Error(`Job ${jobId} has been canceled`);
                             }

@@ -69,7 +69,7 @@ var raw;
             const url = getUrl(config, prefix + (id ? ('/' + id + (suffix ? ('/' + suffix) : '')) : '') + (urlArgs ? urlArgsToString(urlArgs) : ''));
             const response = yield request[method](url, options);
             if (response.errorMessage) {
-                throw response;
+                throw new Error(response.errorMessage);
             }
             else {
                 return response;

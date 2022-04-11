@@ -76,7 +76,7 @@ export namespace raw {
     const response = await request[method](url, options)
 
     if (response.errorMessage) {
-      throw response
+      throw new Error(response.errorMessage);
     } else {
       return response
     }
