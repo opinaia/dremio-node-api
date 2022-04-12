@@ -1,4 +1,4 @@
-import * as request from 'request-promise-native'
+import axios from 'axios'
 import { schema } from './schema'
 
 export type ClusterConfiguration = {
@@ -61,24 +61,25 @@ export namespace raw {
   }
 
   export async function makeRequest<method extends 'get' | 'put' | 'post' | 'delete', prefix extends string, id extends string | null, suffix extends string | null>(config: ClusterConfiguration, method: method, token: string | null, prefix: prefix, id: id, suffix: suffix, urlArgs: UrlArgs<[method, prefix, id, suffix]>, body: Body<[method, prefix, id, suffix]>, encoding?: any): Promise<Schema<[method, prefix, id, suffix]>> {
-    const options: request.RequestPromiseOptions = {
-      json: encoding !== null,
+    const url = getUrl(config, prefix + (id ? ('/' + id + (suffix ? ('/' + suffix) : '')) : '') + (urlArgs ? urlArgsToString(urlArgs as { [key: string]: any }) : ''))
+    const options = {
+      url,
       method: method,
       headers: token === null ? undefined : {
         Authorization: token,
         'Content-type': 'application/json'
       },
-      encoding: encoding,
-      body: body
+      responseEncoding: encoding,
+      data: body
     }
-    const url = getUrl(config, prefix + (id ? ('/' + id + (suffix ? ('/' + suffix) : '')) : '') + (urlArgs ? urlArgsToString(urlArgs as { [key: string]: any }) : ''))
 
-    const response = await request[method](url, options)
+    const response = await axios(options)
 
-    if (response.errorMessage) {
-      throw new Error(response.errorMessage);
+
+    if (response.data.errorMessage) {
+      throw new Error(response.data.errorMessage);
     } else {
-      return response
+      return response.data
     }
   }
 }

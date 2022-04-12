@@ -11,11 +11,9 @@
   "main": "out/index.js",
   "types": "out/index.d.ts",
   "dependencies": {
-    "request": "^2.87.0",
-    "request-promise-native": "^1.0.5"
+    "axios": "^0.26.1"
   },
   "devDependencies": {
-    "@types/request-promise-native": "^1.0.15",
     "@types/node": "^9.4.7",
     "jison": "^0.4.18"
   }
